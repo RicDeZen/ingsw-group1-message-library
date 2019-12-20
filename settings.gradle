@@ -1,0 +1,2 @@
+include ':app', ':msglibrary'
+rootProject.name='ingsw-group1-message-library'
