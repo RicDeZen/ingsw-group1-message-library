@@ -1,2 +1,2 @@
-include ':app', ':msglibrary'
+include ':demo', ':msglibrary'
 rootProject.name='ingsw-group1-message-library'
