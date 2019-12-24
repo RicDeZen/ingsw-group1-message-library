@@ -42,7 +42,7 @@ public class SMSPeer extends Peer<String> {
      * @throws InvalidAddressException if the given address is invalid
      */
     public SMSPeer(String address){
-        if(isAddressValid(address) != PhoneNumberValidity.ADDRESS_VALID)
+        if(getAddressValidity(address) != PhoneNumberValidity.ADDRESS_VALID)
             throw new InvalidAddressException(CON_ERROR);
         this.address = address;
     }
@@ -61,14 +61,14 @@ public class SMSPeer extends Peer<String> {
      */
     @Override
     public boolean isValid(){
-        return isAddressValid(address) == PhoneNumberValidity.ADDRESS_VALID;
+        return getAddressValidity(address) == PhoneNumberValidity.ADDRESS_VALID;
     }
 
     /**
      * @param address the address whose validity should be checked
      * @return An enum value to indicate what is wrong with the phone number or that nothing is wrong
      */
-    public static PhoneNumberValidity isAddressValid(String address){
+    public static PhoneNumberValidity getAddressValidity(String address){
 
         if(address == null || !address.matches("\\+?\\d+"))
             return PhoneNumberValidity.ADDRESS_NOT_PHONE_NUMBER;
