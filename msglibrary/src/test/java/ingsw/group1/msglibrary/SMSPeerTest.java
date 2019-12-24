@@ -1,15 +1,16 @@
 package ingsw.group1.msglibrary;
 
-import android.os.Build;
-
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
+import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 import ingsw.group1.msglibrary.exceptions.InvalidAddressException;
 
-import static org.junit.Assert.assertEquals;
+import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -18,107 +19,69 @@ import static org.junit.Assert.assertNotNull;
  * @author Giorgia Bortoletti
  * @author Riccardo De Zen
  */
-@Config(sdk = Build.VERSION_CODES.P)
-@RunWith(RobolectricTestRunner.class)
+@RunWith(Parameterized.class)
 public class SMSPeerTest {
 
+    public static final int TEST_RUNS = 100;
+    private final int run;
+
+    /**
+     * @return parameters for the test. Just the index of the test run.
+     */
+    @Parameterized.Parameters
+    public static Object[] data() {
+        Integer[] params = new Integer[TEST_RUNS];
+        for(int i = 0; i < TEST_RUNS; i++)
+            params[i] = i;
+        return params;
+    }
+
+    /**
+     * @param run test index.
+     */
+    public SMSPeerTest(int run){
+        this.run = run;
+    }
+
+    private static final RandomSMSPeerGenerator GENERATOR = new RandomSMSPeerGenerator();
     private SMSPeer peer;
-    private static final String EX_VALID_ADDRESS = "+39892424";
-
-    @Test
-    public void isAddressValidNull(){
-        assertEquals(
-                SMSPeer.PhoneNumberValidity.ADDRESS_NOT_PHONE_NUMBER,
-                SMSPeer.isAddressValid(null)
-        );
-    }
-
-    @Test
-    public void isAddressValidEmptyOrBlank(){
-        assertEquals(
-                SMSPeer.PhoneNumberValidity.ADDRESS_NOT_PHONE_NUMBER,
-                SMSPeer.isAddressValid("")
-        );
-        assertEquals(
-                SMSPeer.PhoneNumberValidity.ADDRESS_NOT_PHONE_NUMBER,
-                SMSPeer.isAddressValid("     ")
-        );
-    }
-
-    @Test
-    public void isAddressValidNaN(){
-        String notANumber = "Wassup";
-        assertEquals(
-                SMSPeer.PhoneNumberValidity.ADDRESS_NOT_PHONE_NUMBER,
-                SMSPeer.isAddressValid(notANumber)
-        );
-    }
-
-    @Test
-    public void isAddressValidNoCountryCode(){
-        String noCC = "911";
-        assertEquals(
-                SMSPeer.PhoneNumberValidity.ADDRESS_NO_COUNTRY_CODE,
-                SMSPeer.isAddressValid(noCC)
-        );
-    }
-
-    @Test
-    public void isAddressValidTooLong(){
-        String longAddress = "+11111111111111111111111111";
-        assertEquals(
-                SMSPeer.PhoneNumberValidity.ADDRESS_TOO_LONG,
-                SMSPeer.isAddressValid(longAddress)
-        );
-    }
-
-    @Test
-    public void isAddressValidTooShort(){
-        String shortAddress = "+10";
-        assertEquals(
-                SMSPeer.PhoneNumberValidity.ADDRESS_TOO_SHORT,
-                SMSPeer.isAddressValid(shortAddress)
-        );
-    }
-
-    @Test
-    public void isAddressValidIsValid(){
-        assertEquals(
-                SMSPeer.PhoneNumberValidity.ADDRESS_VALID,
-                SMSPeer.isAddressValid(EX_VALID_ADDRESS)
-        );
-    }
 
     @Test(expected = InvalidAddressException.class)
     public void constructorFails(){
-        String invalidAddress = "+10p";
+        String invalidAddress = GENERATOR.generateInvalidAddress();
         peer = new SMSPeer(invalidAddress);
     }
 
     @Test
     public void constructorPasses(){
-        peer = new SMSPeer(EX_VALID_ADDRESS);
+        peer = new SMSPeer(GENERATOR.generateValidAddress());
         assertNotNull(peer);
     }
 
     @Test
     public void getAddress(){
-        peer = new SMSPeer(EX_VALID_ADDRESS);
-        assertEquals(EX_VALID_ADDRESS, peer.getAddress());
+        String address = GENERATOR.generateValidAddress();
+        peer = new SMSPeer(address);
+        assertEquals(address, peer.getAddress());
     }
 
     @Test
     public void equalsSame(){
-        peer = new SMSPeer(EX_VALID_ADDRESS);
-        SMSPeer other = new SMSPeer(EX_VALID_ADDRESS);
+        String address = GENERATOR.generateValidAddress();
+        peer = new SMSPeer(address);
+        SMSPeer other = new SMSPeer(address);
         assertEquals(peer, peer);
         assertEquals(peer, other);
     }
 
     @Test
-    public void equalsDifferent(){
-        peer = new SMSPeer(EX_VALID_ADDRESS);
-        SMSPeer other = new SMSPeer(EX_VALID_ADDRESS+"0");
+    public void notEqualsDifferent(){
+        String firstAddress = GENERATOR.generateValidAddress();
+        String secondAddress = GENERATOR.generateValidAddress();
+        while(firstAddress.equals(secondAddress))
+            secondAddress = GENERATOR.generateValidAddress();
+        peer = new SMSPeer(firstAddress);
+        SMSPeer other = new SMSPeer(secondAddress);
         assertNotEquals(peer, other);
     }
 
@@ -126,5 +89,4 @@ public class SMSPeerTest {
     public void invalidSMSPeerIsValidNegative(){
         assertFalse(SMSPeer.INVALID_SMS_PEER.isValid());
     }
-
 }

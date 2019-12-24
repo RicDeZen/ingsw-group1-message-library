@@ -5,7 +5,7 @@ package ingsw.group1.msglibrary;
  */
 public class SMSMessageProviderStub implements MessageProviderStub<SMSPeer,SMSMessage> {
 
-    private static SMSPeerProviderStub peerProvider = new SMSPeerProviderStub();
+    private static final RandomSMSPeerGenerator GENERATOR = new RandomSMSPeerGenerator();
     /**
      * Generate a random Message and Peer
      *
@@ -13,7 +13,7 @@ public class SMSMessageProviderStub implements MessageProviderStub<SMSPeer,SMSMe
      */
     @Override
     public SMSMessage getRandomMessage() {
-        SMSPeer peer = peerProvider.getRandomPeer();
+        SMSPeer peer = GENERATOR.generateValidPeer();
         String message = String.valueOf(peer.hashCode());
         return new SMSMessage(peer,message);
     }
