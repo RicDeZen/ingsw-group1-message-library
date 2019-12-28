@@ -18,11 +18,8 @@ import static junit.framework.TestCase.assertTrue;
 @RunWith(Parameterized.class)
 public class RandomSMSPeerGeneratorTest {
 
-    private static List<String> COUNTRIES = new ArrayList<>();
-
     private RandomSMSPeerGenerator generator = new RandomSMSPeerGenerator();
 
-    private final int run;
     private final String countryCode;
 
     /**
@@ -30,24 +27,16 @@ public class RandomSMSPeerGeneratorTest {
      * - Index for the run.
      * - Region to test.
      */
-    @Parameterized.Parameters(name = "{0}: {1}")
-    public static Collection<Object[]> data() {
-        String[] array = PhoneNumberUtil.getInstance().getSupportedRegions().toArray(new String[0]);
-        COUNTRIES = Arrays.asList(array);
-        List<Object[]> params = new ArrayList<>();
-        for(int i = 0; i < COUNTRIES.size(); i++){
-            params.add(new Object[]{
-                    i, COUNTRIES.get(i)
-            });
-        }
-        return params;
+    @Parameterized.Parameters(name = "{index}: {0}")
+    public static Collection<String> data() {
+        String[] supportedCountries = PhoneNumberUtil.getInstance().getSupportedRegions().toArray(new String[0]);
+        return Arrays.asList(supportedCountries);
     }
 
     /**
-     * @param run test index.
+     * @param countryCode the country code for which we want to run the tests.
      */
-    public RandomSMSPeerGeneratorTest(int run, String countryCode) {
-        this.run = run;
+    public RandomSMSPeerGeneratorTest(String countryCode) {
         this.countryCode = countryCode;
     }
 
