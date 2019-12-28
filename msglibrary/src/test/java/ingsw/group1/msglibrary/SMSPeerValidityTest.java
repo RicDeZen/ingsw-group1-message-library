@@ -9,15 +9,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.robolectric.annotation.Config;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import ingsw.group1.msglibrary.exceptions.InvalidAddressException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Giorgia Bortoletti
@@ -32,9 +27,7 @@ public class SMSPeerValidityTest {
     private final String countryCode;
 
     /**
-     * @return the Parameters for the test, in the form:
-     * - Run number.
-     * - Expected Validity.
+     * @return the Parameters for the test. The parameters are the list of supported countries.
      * First half of the runs is for valid numbers. Second half is for invalid numbers.
      */
     @Parameterized.Parameters(name = "{index}: {0}")
@@ -44,7 +37,8 @@ public class SMSPeerValidityTest {
     }
 
     /**
-     * Default constructor. Declaration in parameterized tests is needed even if empty.
+     * Default constructor.
+     * @param countryCode the code for the country to test.
      */
     public SMSPeerValidityTest(String countryCode) {
         this.countryCode = countryCode;

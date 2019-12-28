@@ -22,7 +22,6 @@ public class RandomSMSPeerGeneratorTest {
 
     /**
      * @return parameters for the test:
-     * - Index for the run.
      * - Region to test.
      */
     @Parameterized.Parameters(name = "{index}: {0}")
