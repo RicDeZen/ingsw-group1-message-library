@@ -14,6 +14,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Giorgia Bortoletti
  * @author Riccardo De Zen
+ * This test needs a positive result in tests for RandomSMSPeerGenerator in order to work.
  */
 @RunWith(Parameterized.class)
 public class SMSPeerTest {
