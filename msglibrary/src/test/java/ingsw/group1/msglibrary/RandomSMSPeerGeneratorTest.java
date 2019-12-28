@@ -6,10 +6,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import static junit.framework.TestCase.assertNotSame;
 import static junit.framework.TestCase.assertSame;
@@ -18,7 +16,7 @@ import static junit.framework.TestCase.assertTrue;
 @RunWith(Parameterized.class)
 public class RandomSMSPeerGeneratorTest {
 
-    private RandomSMSPeerGenerator generator = new RandomSMSPeerGenerator();
+    private static final RandomSMSPeerGenerator GENERATOR = new RandomSMSPeerGenerator();
 
     private final String countryCode;
 
@@ -41,17 +39,32 @@ public class RandomSMSPeerGeneratorTest {
     }
 
     @Test
-    public void canCreateValidPeer() {
-        assertTrue(generator.generateValidPeer(countryCode).isValid());
+    public void canCreateDefaultRegionValidAddress() {
+        assertSame(SMSPeer.PhoneNumberValidity.VALID,SMSPeer.getAddressValidity(GENERATOR.generateValidAddress()));
+    }
+
+    @Test
+    public void canCreateDefaultRegionInvalidAddress() {
+        assertNotSame(SMSPeer.PhoneNumberValidity.VALID, SMSPeer.getAddressValidity(GENERATOR.generateInvalidAddress(countryCode)));
+    }
+
+    @Test
+    public void canCreateDefaultRegionValidPeer() {
+        assertTrue(GENERATOR.generateValidPeer().isValid());
     }
 
     @Test
     public void canCreateValidAddress() {
-        assertSame(SMSPeer.PhoneNumberValidity.VALID,SMSPeer.getAddressValidity(generator.generateValidAddress(countryCode)));
+        assertSame(SMSPeer.PhoneNumberValidity.VALID,SMSPeer.getAddressValidity(GENERATOR.generateValidAddress(countryCode)));
     }
 
     @Test
     public void canCreateInvalidAddress() {
-        assertNotSame(SMSPeer.PhoneNumberValidity.VALID, SMSPeer.getAddressValidity(generator.generateInvalidAddress(countryCode)));
+        assertNotSame(SMSPeer.PhoneNumberValidity.VALID, SMSPeer.getAddressValidity(GENERATOR.generateInvalidAddress(countryCode)));
+    }
+
+    @Test
+    public void canCreateValidPeer() {
+        assertTrue(GENERATOR.generateValidPeer(countryCode).isValid());
     }
 }
