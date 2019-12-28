@@ -14,7 +14,8 @@ import java.util.Collection;
 
 import ingsw.group1.msglibrary.exceptions.InvalidAddressException;
 
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.fail;
 
 /**
  * @author Giorgia Bortoletti
@@ -48,12 +49,13 @@ public class SMSPeerValidityTest {
 
     @Test
     public void constructorAcceptsValid() {
-        new SMSPeer(GENERATOR.generateValidAddress(countryCode));
-        assertTrue(true);
+        SMSPeer peer = new SMSPeer(GENERATOR.generateValidAddress(countryCode));
+        assertNotNull(peer);
     }
 
     @Test(expected = InvalidAddressException.class)
     public void constructorThrowsForInvalid(){
         new SMSPeer(GENERATOR.generateInvalidAddress(countryCode));
+        fail();
     }
 }

@@ -14,6 +14,7 @@ import java.util.Collection;
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * This test class uses {@link PhoneNumberUtil#parse(String, String)} to validate the generated
@@ -68,7 +69,7 @@ public class RandomSMSPeerGeneratorTest {
             assertFalse(UTIL.isValidNumber(number));
         }
         catch (NumberParseException e){
-            assertTrue(true);
+            assertNotNull(e);
         }
     }
 
@@ -92,7 +93,7 @@ public class RandomSMSPeerGeneratorTest {
             assertFalse(UTIL.isValidNumber(number));
         }
         catch (NumberParseException e){
-            assertTrue(true);
+            assertNotNull(e);
         }
     }
 
