@@ -1,12 +1,8 @@
 package ingsw.group1.msglibrary;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import java.util.Arrays;
-import java.util.Collection;
 
 import ingsw.group1.msglibrary.exceptions.InvalidAddressException;
 

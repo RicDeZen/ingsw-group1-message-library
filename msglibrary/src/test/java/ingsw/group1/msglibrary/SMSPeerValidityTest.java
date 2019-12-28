@@ -2,27 +2,18 @@ package ingsw.group1.msglibrary;
 
 import android.os.Build;
 
-import androidx.annotation.NonNull;
-
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.robolectric.ParameterizedRobolectricTestRunner;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import ingsw.group1.msglibrary.exceptions.InvalidAddressException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Giorgia Bortoletti

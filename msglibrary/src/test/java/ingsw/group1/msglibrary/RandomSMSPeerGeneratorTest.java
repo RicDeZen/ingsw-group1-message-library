@@ -1,7 +1,5 @@
 package ingsw.group1.msglibrary;
 
-import android.util.ArraySet;
-
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 
 import org.junit.Test;
@@ -12,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 
 import static junit.framework.TestCase.assertNotSame;
 import static junit.framework.TestCase.assertSame;
