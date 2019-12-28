@@ -1,7 +1,5 @@
 package ingsw.group1.msglibrary;
 
-import ingsw.group1.msglibrary.exceptions.InvalidRegionException;
-
 /**
  * @author Riccardo De Zen.
  * @param <P> the type of generated Peer.

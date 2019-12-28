@@ -1,12 +1,9 @@
 package ingsw.group1.msglibrary;
 
-import androidx.annotation.NonNull;
-
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.util.Random;
-import java.util.jar.Manifest;
 
 /**
  * Utility class to generate random instances of {@code SMSPeer}. Useful in testing.
