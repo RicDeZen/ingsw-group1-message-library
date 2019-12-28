@@ -33,12 +33,6 @@ public class SMSPeerTest {
         return new Object[TEST_RUNS][0];
     }
 
-    /**
-     * Default constructor. Declaration in parameterized tests is needed even if empty.
-     */
-    public SMSPeerTest() {
-    }
-
     @Test(expected = InvalidAddressException.class)
     public void constructorFails() {
         String invalidAddress = GENERATOR.generateInvalidAddress();
