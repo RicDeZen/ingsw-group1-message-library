@@ -1,9 +1,11 @@
 package ingsw.group1.msglibrary;
 
-import android.telephony.PhoneNumberUtils;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 
 import ingsw.group1.msglibrary.exceptions.InvalidAddressException;
 
@@ -11,94 +13,99 @@ import ingsw.group1.msglibrary.exceptions.InvalidAddressException;
  * @author Riccardo De Zen. Based on decisions of whole class.
  */
 public class SMSPeer extends Peer<String> {
+    /**
+     * Field representing an Invalid SMSPeer. To avoid propagation of Invalid Peers this should
+     * not be used as a return statement outside mock tests.
+     */
+    public static final SMSPeer INVALID_SMS_PEER = new SMSPeer(Token.INVALIDITY_TOKEN);
+    /**
+     * Default region for Peers. Used only when the number is not in International formatting.
+     */
+    public static final String DEFAULT_REGION = "IT";
 
-    private static final String CON_ERROR =
-            "The given address is invalid, refer to SMSPeer.isAddressValid(String address)";
-    //Max length includes + sign.
-    public static final int MAX_ADDRESS_LENGTH = 16;
-    public static final int MIN_ADDRESS_LENGTH = 4;
-
-    private String address;
-
-    public static final SMSPeer INVALID_SMS_PEER = new SMSPeer(Token.invalidityToken);
-
-    private enum Token{
-        invalidityToken
+    private enum Token {
+        INVALIDITY_TOKEN
     }
 
+    private static final PhoneNumberUtil utils = PhoneNumberUtil.getInstance();
+    private static final String CON_ERROR = "Failed to create an SMSPeer from given address. " +
+            "Reason: %s\n";
+
+    @NonNull
+    private String address;
+
     /**
-     * This private constructor is used to create an invalid SMSPeer, it takes a dummy param Token so that it doesn't take the space for a default constructor
+     * This private constructor is used to create an invalid SMSPeer, it takes a dummy param
+     * Token so that it doesn't take the space for a default constructor
+     *
      * @param t token that is only used to have a parameter for the constructor
      */
-    private SMSPeer(Token t){
-        if (t.equals(Token.invalidityToken))
-            address = "";
+    private SMSPeer(Token t) {
+        if (t.equals(Token.INVALIDITY_TOKEN))
+            address = "null";
         else
+            //Should never be thrown.
             throw new IllegalStateException();
     }
 
     /**
-     * @param address the address for the peer
+     * @param address the address for the SMSPeer
      * @throws InvalidAddressException if the given address is invalid
      */
-    public SMSPeer(String address){
-        if(getAddressValidity(address) != PhoneNumberValidity.ADDRESS_VALID)
-            throw new InvalidAddressException(CON_ERROR);
+    public SMSPeer(@NonNull String address) {
+        PhoneNumberValidity validity = getAddressValidity(address);
+        if (validity != PhoneNumberValidity.VALID)
+            throw new InvalidAddressException(String.format(CON_ERROR, validity.getMessage()));
         this.address = address;
     }
 
     /**
      * @return the address of the peer
      */
+    @NonNull
     @Override
     public String getAddress() {
         return address;
     }
 
     /**
-     * This method should always return true. It can return false if the address was modified illegally.
+     * This method should always return true. It can return false if the address was modified
+     * illegally.
+     *
      * @return true if address fulfills international phone address standards
      */
     @Override
-    public boolean isValid(){
-        return getAddressValidity(address) == PhoneNumberValidity.ADDRESS_VALID;
+    public boolean isValid() {
+        return getAddressValidity(address) == PhoneNumberValidity.VALID;
     }
 
     /**
-     * @param address the address whose validity should be checked
-     * @return An enum value to indicate what is wrong with the phone number or that nothing is wrong
+     * @param address the address whose validity should be checked.
+     * @return An enum value to indicate the validity state of the address.
      */
-    public static PhoneNumberValidity getAddressValidity(String address){
-
-        if(address == null || !address.matches("\\+?\\d+"))
-            return PhoneNumberValidity.ADDRESS_NOT_PHONE_NUMBER;
-
-        if(address.charAt(0) != '+')
-            return PhoneNumberValidity.ADDRESS_NO_COUNTRY_CODE;
-
-        if(address.length() > MAX_ADDRESS_LENGTH)
-            return PhoneNumberValidity.ADDRESS_TOO_LONG;
-
-        if(address.length() < MIN_ADDRESS_LENGTH)
-            return PhoneNumberValidity.ADDRESS_TOO_SHORT;
-        //Failure of some other criteria in isGlobalPhoneNumber, the country code is probably invalid.
-        if(!PhoneNumberUtils.isGlobalPhoneNumber(address))
-            return PhoneNumberValidity.ADDRESS_GENERIC_INVALID;
-
-        return PhoneNumberValidity.ADDRESS_VALID;
+    public static PhoneNumberValidity getAddressValidity(@NonNull String address) {
+        try {
+            Phonenumber.PhoneNumber number = utils.parse(address, DEFAULT_REGION);
+            if (utils.isPossibleNumber(number) && utils.isValidNumber(number))
+                return PhoneNumberValidity.VALID;
+            else
+                return PhoneNumberValidity.NOT_VALID;
+        } catch (NumberParseException e) {
+            return PhoneNumberValidity.NOT_A_NUMBER;
+        }
     }
 
     /**
      * @return String type representation of the Object
      */
     @NonNull
-    public String toString(){
+    public String toString() {
         return address;
     }
 
     @Override
     public boolean equals(@Nullable Object obj) {
-        if(obj instanceof SMSPeer) return ((SMSPeer) obj).address.equals(this.address);
+        if (obj instanceof SMSPeer) return ((SMSPeer) obj).address.equals(this.address);
         else return false;
     }
 
@@ -106,11 +113,22 @@ public class SMSPeer extends Peer<String> {
      * Enum to indicate the validity or invalidity of an address.
      */
     public enum PhoneNumberValidity {
-        ADDRESS_NOT_PHONE_NUMBER,
-        ADDRESS_NO_COUNTRY_CODE,
-        ADDRESS_TOO_LONG,
-        ADDRESS_TOO_SHORT,
-        ADDRESS_GENERIC_INVALID,
-        ADDRESS_VALID
+
+        NOT_A_NUMBER("Address is not a phone number."),
+        NOT_VALID("Phone number is invalid."),
+        VALID("Phone number is valid.");
+
+        private String message;
+
+        PhoneNumberValidity(String message) {
+            this.message = message;
+        }
+
+        /**
+         * @return {@link PhoneNumberValidity#message}.
+         */
+        public String getMessage() {
+            return message;
+        }
     }
 }
