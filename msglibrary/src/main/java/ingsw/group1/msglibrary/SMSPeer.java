@@ -12,7 +12,7 @@ import ingsw.group1.msglibrary.exceptions.InvalidAddressException;
 /**
  * @author Riccardo De Zen. Based on decisions of whole class.
  */
-public class SMSPeer extends Peer<String> {
+public class SMSPeer implements Peer<String, SMSPeer> {
     /**
      * Field representing an Invalid SMSPeer. To avoid propagation of Invalid Peers this should
      * not be used as a return statement outside mock tests.
@@ -103,10 +103,28 @@ public class SMSPeer extends Peer<String> {
         return address;
     }
 
+    /**
+     * Two Peers are considered equal by default if their addresses are equal.
+     *
+     * @param obj the other Peer
+     * @return true if the other Peer equals this, false if not.
+     */
     @Override
     public boolean equals(@Nullable Object obj) {
-        if (obj instanceof SMSPeer) return ((SMSPeer) obj).address.equals(this.address);
-        else return false;
+        if (obj instanceof Peer) {
+            Peer other = (Peer) obj;
+            return other.getAddress().equals(this.getAddress());
+        } else return false;
+    }
+
+    /**
+     * Two Peers can, by default, be ordered using their address as a key.
+     * @param peer the Peer to compare
+     * @return the result of the comparison between the addresses
+     */
+    @Override
+    public int compareTo(@NonNull SMSPeer peer) {
+        return peer.getAddress().compareTo(this.getAddress());
     }
 
     /**
