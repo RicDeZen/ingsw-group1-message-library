@@ -16,7 +16,7 @@ import ingsw.group1.msglibrary.exceptions.InvalidMessageException;
  * @author Riccardo De Zen based on decisions of whole class.
  */
 @Entity(tableName = SMSMessage.SMS_TABLE_NAME)
-public class SMSMessage implements Message<String, SMSPeer>{
+public class SMSMessage implements Message<SMSPeer, String>{
 
     //Name of the Entity table inside the Database.
     public static final String SMS_TABLE_NAME = "smsmessage";
