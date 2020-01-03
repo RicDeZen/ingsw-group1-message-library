@@ -1,10 +1,9 @@
 package ingsw.group1.msglibrary;
 
-import android.telephony.PhoneNumberUtils;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import ingsw.group1.msglibrary.exceptions.InvalidAddressException;
 
 /**
@@ -21,6 +20,9 @@ public class SMSPeer extends Peer<String> {
     private String address;
 
     public static final SMSPeer INVALID_SMS_PEER = new SMSPeer(Token.invalidityToken);
+
+    private static final Pattern GLOBAL_PHONE_NUMBER_PATTERN =
+            Pattern.compile("[+]?[0-9.-]+");
 
     private enum Token{
         invalidityToken
@@ -82,7 +84,7 @@ public class SMSPeer extends Peer<String> {
         if(address.length() < MIN_ADDRESS_LENGTH)
             return PhoneNumberValidity.ADDRESS_TOO_SHORT;
         //Failure of some other criteria in isGlobalPhoneNumber, the country code is probably invalid.
-        if(!PhoneNumberUtils.isGlobalPhoneNumber(address))
+        if(!isGlobalPhoneNumber(address))
             return PhoneNumberValidity.ADDRESS_GENERIC_INVALID;
 
         return PhoneNumberValidity.ADDRESS_VALID;
@@ -94,6 +96,15 @@ public class SMSPeer extends Peer<String> {
     @NonNull
     public String toString(){
         return address;
+    }
+
+    /**
+     * @param phoneNumber A String containing a global phoneNumber
+     * @return A boolean value stating if the given phoneNumber is a valid global phone number
+     */
+    public static boolean isGlobalPhoneNumber(@NonNull String phoneNumber) {
+        Matcher match = GLOBAL_PHONE_NUMBER_PATTERN.matcher(phoneNumber);
+        return match.matches();
     }
 
     @Override
