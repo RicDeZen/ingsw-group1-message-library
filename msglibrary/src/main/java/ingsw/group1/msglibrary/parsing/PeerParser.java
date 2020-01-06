@@ -19,7 +19,7 @@ public interface PeerParser<P extends Peer, D> {
 
     /**
      * @param data The data to be parsed.
-     * @return The Peer contained in the data.
+     * @return The {@code Peer} obtained from the data.
      */
     P dataToPeer(D data);
 }
