@@ -4,7 +4,7 @@ package ingsw.group1.msglibrary;
  * @author Riccardo De Zen.
  * @param <P> the type of generated Peer.
  */
-public interface RandomPeerGenerator<A extends Comparable<A>, P extends Peer<A>> {
+public interface RandomPeerGenerator<A extends Comparable<A>, P extends Peer<A,P>> {
     /**
      * @return a valid built Peer.
      */
