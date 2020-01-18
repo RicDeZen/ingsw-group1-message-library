@@ -4,6 +4,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import ingsw.group1.msglibrary.exceptions.InvalidAddressException;
 
 import static junit.framework.TestCase.fail;
@@ -16,21 +20,24 @@ import static junit.framework.TestCase.fail;
 @RunWith(Parameterized.class)
 public class EmulatorAddressTest {
 
+    private static final String[] HEADS = new String[]{"555", "+555", "+1555521555"};
+    private static final String[] TAILS = new String[]{"4", "6", "8"};
+
     private String addressToTest;
 
     /**
      * Parameters for the test, in the form of the various possible emulator addresses.
      */
     @Parameterized.Parameters(name = "{index}: {0}")
-    public static Object[][] params() {
-        return new Object[][]{
-                {"5554"},
-                {"+15555215554"},
-                {"5556"},
-                {"+15555215556"},
-                {"5558"},
-                {"+15555215558"},
-        };
+    public static Collection<Object> params() {
+        List<Object> parameters = new ArrayList<>();
+        for (String head : HEADS) {
+            for (String tail : TAILS) {
+                String address = head + tail;
+                parameters.add(address);
+            }
+        }
+        return parameters;
     }
 
     /**
