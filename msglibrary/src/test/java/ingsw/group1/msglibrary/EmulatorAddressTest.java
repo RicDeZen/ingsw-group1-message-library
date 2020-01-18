@@ -16,6 +16,8 @@ import static junit.framework.TestCase.fail;
 @RunWith(Parameterized.class)
 public class EmulatorAddressTest {
 
+    private String addressToTest;
+
     /**
      * Parameters for the test, in the form of the various possible emulator addresses.
      */
@@ -30,8 +32,6 @@ public class EmulatorAddressTest {
                 {"+15555215558"},
         };
     }
-
-    private String addressToTest;
 
     /**
      * Public constructor for the test.
