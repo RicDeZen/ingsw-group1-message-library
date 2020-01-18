@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(Parameterized.class)
 public class SMSPeerTest {
 
-    private static final int TEST_RUNS = 100;
+    private static final int TEST_RUNS = 1;
     private static final RandomSMSPeerGenerator GENERATOR = new RandomSMSPeerGenerator();
 
     private SMSPeer peer;

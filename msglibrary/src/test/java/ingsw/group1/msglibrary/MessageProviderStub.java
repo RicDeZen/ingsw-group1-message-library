@@ -1,6 +1,6 @@
 package ingsw.group1.msglibrary;
 
-public interface MessageProviderStub<P extends Peer, M extends Message<?,P>>{
+public interface MessageProviderStub<P extends Peer, M extends Message<P,?>>{
 
     /**
      * Generate a random Message and Peer

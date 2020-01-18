@@ -23,6 +23,10 @@ public class SMSPeer implements Peer<String, SMSPeer> {
      */
     public static final String DEFAULT_REGION = "IT";
 
+    //Max 3 emulators tested (5554, 5556, 5558)
+    private static final String EMULATOR_REGEX = "\\+1555521555[468]";
+    private static final String SHORT_EMULATOR_REGEX = "555[468]";
+
     private enum Token {
         INVALIDITY_TOKEN
     }
@@ -54,7 +58,7 @@ public class SMSPeer implements Peer<String, SMSPeer> {
      */
     public SMSPeer(@NonNull String address) {
         PhoneNumberValidity validity = getAddressValidity(address);
-        if (validity != PhoneNumberValidity.VALID)
+        if (validity != PhoneNumberValidity.VALID && validity != PhoneNumberValidity.EMULATOR)
             throw new InvalidAddressException(String.format(CON_ERROR, validity.getMessage()));
         this.address = address;
     }
@@ -84,6 +88,8 @@ public class SMSPeer implements Peer<String, SMSPeer> {
      * @return An enum value to indicate the validity state of the address.
      */
     public static PhoneNumberValidity getAddressValidity(@NonNull String address) {
+        if(address.matches(SHORT_EMULATOR_REGEX) || address.matches(EMULATOR_REGEX))
+            return PhoneNumberValidity.EMULATOR;
         try {
             Phonenumber.PhoneNumber number = utils.parse(address, DEFAULT_REGION);
             if (utils.isPossibleNumber(number) && utils.isValidNumber(number))
@@ -134,6 +140,7 @@ public class SMSPeer implements Peer<String, SMSPeer> {
 
         NOT_A_NUMBER("Address is not a phone number."),
         NOT_VALID("Phone number is invalid."),
+        EMULATOR("Phone number might be an emulator's number"),
         VALID("Phone number is valid.");
 
         private String message;
