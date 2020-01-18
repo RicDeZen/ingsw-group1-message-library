@@ -18,8 +18,8 @@ public class SMSPeerParser implements PeerParser<SMSPeer, String> {
 
     /**
      * @param peer The valid {@code SMSPeer} to convert into data. Must not be {@code null}.
-     * @return The converted {@code SMSPeer} in {@code String} format, returns null for an
-     * invalid {@code peer}.
+     * @return The converted {@code SMSPeer} in {@code String} format, more precisely a {@code
+     * String} containing the address, returns null if {@code peer} is invalid.
      */
     @Nullable
     public String peerToData(@NonNull SMSPeer peer) {
@@ -29,16 +29,19 @@ public class SMSPeerParser implements PeerParser<SMSPeer, String> {
     }
 
     /**
-     * @param data The data to be parsed. A valid address is expected as data. Must not be {@code
-     *             null}.
+     * @param data The data to be parsed. A {@code String} containing a valid address is expected
+     *             as data. Must not be {@code null}.
      * @return The {@code SMSPeer} obtained from the data.
-     * @throws InvalidAddressException if {@code data} was not a valid address.
+     * @throws InvalidAddressException If {@code data} was not a valid address.
      */
     @NonNull
     public SMSPeer dataToPeer(@NonNull String data) throws InvalidAddressException {
-        SMSPeer.PhoneNumberValidity validity = SMSPeer.getAddressValidity(data);
-        if (validity != SMSPeer.PhoneNumberValidity.VALID)
-            throw new InvalidAddressException(String.format(PARSE_ERR, validity));
-        return new SMSPeer(data);
+        try {
+            return new SMSPeer(data);
+        } catch (InvalidAddressException e) {
+            throw new IllegalArgumentException(
+                    String.format(PARSE_ERR, SMSPeer.getAddressValidity(data))
+            );
+        }
     }
 }

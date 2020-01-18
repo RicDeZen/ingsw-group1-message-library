@@ -5,10 +5,8 @@ import org.junit.Test;
 
 import ingsw.group1.msglibrary.RandomSMSPeerGenerator;
 import ingsw.group1.msglibrary.SMSPeer;
-import ingsw.group1.msglibrary.exceptions.InvalidAddressException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests for {@link SMSPeerParser}. Tests assume positive results for
@@ -31,17 +29,15 @@ public class SMSPeerParserTest {
         Assert.assertNull(parser.peerToData(SMSPeer.INVALID_SMS_PEER));
     }
 
-    //TODO test should run on all enum values
-    @Test(expected = InvalidAddressException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void dataToPeerThrowsForInvalidAddress(){
         parser.dataToPeer(new RandomSMSPeerGenerator().generateInvalidAddress());
     }
 
     @Test
     public void dataToPeerAcceptsValidAddress(){
-        SMSPeer peer = new RandomSMSPeerGenerator().generateValidPeer();
-        String peerData = parser.peerToData(peer);
-        assertNotNull(peerData);
-        assertEquals(peer, parser.dataToPeer(peerData));
+        String peerData = new RandomSMSPeerGenerator().generateValidAddress();
+        SMSPeer expected = new SMSPeer(peerData);
+        assertEquals(expected, parser.dataToPeer(peerData));
     }
 }
