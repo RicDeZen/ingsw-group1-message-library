@@ -88,7 +88,7 @@ public class SMSPeer implements Peer<String, SMSPeer> {
      * @return An enum value to indicate the validity state of the address.
      */
     public static PhoneNumberValidity getAddressValidity(@NonNull String address) {
-        if(address.matches(SHORT_EMULATOR_REGEX) || address.matches(EMULATOR_REGEX))
+        if (address.matches(SHORT_EMULATOR_REGEX) || address.matches(EMULATOR_REGEX))
             return PhoneNumberValidity.EMULATOR;
         try {
             Phonenumber.PhoneNumber number = utils.parse(address, DEFAULT_REGION);
@@ -125,6 +125,7 @@ public class SMSPeer implements Peer<String, SMSPeer> {
 
     /**
      * Two Peers can, by default, be ordered using their address as a key.
+     *
      * @param peer the Peer to compare
      * @return the result of the comparison between the addresses
      */
