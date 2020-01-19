@@ -56,7 +56,7 @@ public class SMSParsingManager implements SMSParser {
         this.parsingPreferences = getPreferences(context);
         this.instanceName = instanceName;
         this.PREF_KEY = PREF_KEY_PREFIX + instanceName;
-        this.overridingParser = instantiateOverridingParser();
+        this.overridingParser = instantiateOverridingParser(getOverridingParser());
     }
 
     /**
@@ -114,7 +114,7 @@ public class SMSParsingManager implements SMSParser {
         String oldValue = parsingPreferences.getString(PREF_KEY, null);
         SharedPreferences.Editor prefEditor = parsingPreferences.edit();
         prefEditor.putString(PREF_KEY, newValue);
-        prefEditor.apply();
+        prefEditor.commit();
         return oldValue;
     }
 
@@ -124,21 +124,22 @@ public class SMSParsingManager implements SMSParser {
      * field called: {@link SMSParsingManager#PREF_KEY_PREFIX} +
      * {@link SMSParsingManager#instanceName}.
      *
-     * @param newParser A reference to the class defining the new overriding parser.
+     * @param newParserClass A reference to the class defining the new overriding parser.
      * @return The previously stored class, no type check are performed on the stored class
      * except whether it extends {@link SMSParser}. Returns {@code null} if the class could not
      * be found or it did not extend {@link SMSParser}.
      */
     @Nullable
-    public Class<? extends SMSParser> setOverridingParser(@NonNull Class<? extends SMSParser> newParser) {
+    public Class<? extends SMSParser> setOverridingParser(@NonNull Class<? extends SMSParser> newParserClass) {
         Class<? extends SMSParser> oldStoredClass = getOverridingParser();
-        storeInPreferences(newParser.getName());
-        overridingParser = instantiateOverridingParser();
+        storeInPreferences(newParserClass.getName());
+        overridingParser = instantiateOverridingParser(newParserClass);
         return oldStoredClass;
     }
 
     /**
-     * Getter for the saved parser class.
+     * Getter for the saved parser class. If the saved class is considered invalid, due to either
+     * not existing or not being a subclass of {@link SMSParser}, the method returns null.
      *
      * @return The reference to the currently set {@link SMSParser} class. The Type of stored
      * class is not questioned (as long as it extends {@link SMSParser}).
@@ -152,10 +153,8 @@ public class SMSParsingManager implements SMSParser {
             if (SMSParser.class.isAssignableFrom(storedClass))
                 //The cast is safe due to the above check.
                 return (Class<? extends SMSParser>) storedClass;
-            else
-                return null;
+            else return null;
         } catch (ClassNotFoundException e) {
-            //The class might have been renamed or its name might have been inappropriately stored.
             return null;
         }
     }
@@ -170,7 +169,7 @@ public class SMSParsingManager implements SMSParser {
     public Class<? extends SMSParser> resetOverridingParser() {
         Class<? extends SMSParser> oldStoredClass = getOverridingParser();
         storeInPreferences(null);
-        overridingParser = instantiateOverridingParser();
+        overridingParser = null;
         return oldStoredClass;
     }
 
@@ -181,11 +180,10 @@ public class SMSParsingManager implements SMSParser {
      * @return The instance of the stored class, can be {@code null}.
      */
     @Nullable
-    private SMSParser instantiateOverridingParser() {
-        Class<? extends SMSParser> overridingClass = getOverridingParser();
-        if (overridingClass == null) return null;
+    private SMSParser instantiateOverridingParser(Class<? extends SMSParser> classToInstantiate) {
+        if (classToInstantiate == null) return null;
         try {
-            return overridingClass.newInstance();
+            return classToInstantiate.newInstance();
         } catch (IllegalAccessException | InstantiationException e) {
             return null;
         }

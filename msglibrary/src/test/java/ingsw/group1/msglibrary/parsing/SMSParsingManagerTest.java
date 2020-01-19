@@ -1,6 +1,7 @@
 package ingsw.group1.msglibrary.parsing;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import androidx.test.core.app.ApplicationProvider;
 
@@ -19,6 +20,7 @@ import ingsw.group1.msglibrary.SMSMessage;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 
@@ -33,7 +35,7 @@ import static org.junit.Assert.assertNull;
 public class SMSParsingManagerTest {
 
     private static final String PREF_FILENAME = SMSParsingManager.PREF_FILENAME;
-    private static final String PREF_KEY = SMSParsingManager.PREF_KEY_PREFIX;
+    private static final String PREF_KEY_PREFIX = SMSParsingManager.PREF_KEY_PREFIX;
     private static final String EXAMPLE_NAME = "I'm a name";
     private static final String ANOTHER_NAME = "Another name";
     private static final SMSMessage EXAMPLE_MESSAGE = new SMSMessage(
@@ -42,7 +44,7 @@ public class SMSParsingManagerTest {
     );
 
     private SMSParsingManager parsingManager;
-
+    private String prefKey;
     private Context context;
 
     /**
@@ -50,7 +52,7 @@ public class SMSParsingManagerTest {
      * relevant for this class to be a private child class because the way their name is written
      * influences the reflection mechanisms used to instantiate the class.
      */
-    private static class ExampleSMSParser implements SMSParser {
+    public static class ExampleSMSParser implements SMSParser {
 
         @Override
         public SMSMessage parseOutgoingMessage(SMSMessage message) {
@@ -86,6 +88,8 @@ public class SMSParsingManagerTest {
     public void initContext() {
         context = ApplicationProvider.getApplicationContext();
         parsingManager = SMSParsingManager.getInstance(context, EXAMPLE_NAME);
+        //This should mirror the name defined in the specifications.
+        prefKey = PREF_KEY_PREFIX + parsingManager.getInstanceName();
     }
 
     /**
@@ -103,6 +107,15 @@ public class SMSParsingManagerTest {
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new IllegalStateException("Instances could not be reset due to: " + e.getMessage());
         }
+    }
+
+    /**
+     * Method to get the {@link SharedPreferences} file to perform checks.
+     *
+     * @return The appropriate preference file for this test.
+     */
+    private SharedPreferences getPreferences() {
+        return context.getSharedPreferences(PREF_FILENAME, Context.MODE_PRIVATE);
     }
 
     /**
@@ -126,6 +139,18 @@ public class SMSParsingManagerTest {
         assertNotEquals(
                 SMSParsingManager.getInstance(context, EXAMPLE_NAME),
                 SMSParsingManager.getInstance(context, ANOTHER_NAME)
+        );
+    }
+
+    /**
+     * Test to assert the name passed to {@link SMSParsingManager#getInstance(Context, String)}
+     * is the name returned by {@link SMSParsingManager#getInstanceName()}.
+     */
+    @Test
+    public void givenNameIsInstanceName() {
+        assertEquals(
+                EXAMPLE_NAME,
+                parsingManager.getInstanceName()
         );
     }
 
@@ -156,28 +181,60 @@ public class SMSParsingManagerTest {
     }
 
     /**
-     * // FIXME: 19/01/2020 An attempt to read the value in between write and read returns null.
      * Test to assert the class can write the parser class in
-     * {@link android.content.SharedPreferences} and subsequently retrieve it, when starting from
-     * a {@code null} value.
+     * {@link android.content.SharedPreferences}, with file name and key for the value as
+     * specified in the specifics.
+     *
+     * @see SMSParsingManager For the specifics on where the data is stored.
      */
     @Test
-    public void canSetAndGetParserFromNull() {
+    public void canSetParserClass() {
         parsingManager.setOverridingParser(ExampleSMSParser.class);
-        assertEquals(ExampleSMSParser.class, parsingManager.getOverridingParser());
+        assertEquals(getPreferences().getString(prefKey, null), ExampleSMSParser.class.getName());
     }
 
     /**
-     * // FIXME: 19/01/2020 Same as above test.
-     * Test to assert the class can write the parser class in
-     * {@link android.content.SharedPreferences} and subsequently retrieve it, when starting from
-     * some other already set value.
+     * Test to assert {@link SMSParsingManager#getOverridingParser()} returns {@code null} if no
+     * other value was previously set.
      */
     @Test
-    public void canSetAndGetParserFromAlreadySet() {
+    public void getOverridingParserNullByDefault() {
+        assertNull(parsingManager.getOverridingParser());
+    }
+
+    /**
+     * Test to assert {@link SMSParsingManager#getOverridingParser()} returns {@code null} if the
+     * saved value is not a subclass of {@link SMSParser}. Although this should not be possible
+     * through {@link SMSParsingManager} itself, it could be possible to manually insert the
+     * value as shown in the test itself.
+     */
+    @Test
+    public void getOverridingParserNullIfNotSubclass() {
+        getPreferences().edit().putString(prefKey, Object.class.getName()).commit();
+        assertNull(parsingManager.getOverridingParser());
+    }
+
+    /**
+     * Test to assert {@link SMSParsingManager#getOverridingParser()} returns {@code null} if the
+     * saved value is not valid class name. Although this should not be possible
+     * through {@link SMSParsingManager} itself, it could be possible to manually insert the
+     * value as shown in the test itself.
+     */
+    @Test
+    public void getOverridingParserNullIfNotAClass() {
+        getPreferences().edit().putString(prefKey, "No way in Hell I'm a Class").commit();
+        assertNull(parsingManager.getOverridingParser());
+    }
+
+    /**
+     * Test to assert the class can retrieve a previously saved parser Class.
+     *
+     * @see SMSParsingManager For the specifics on where the data is stored.
+     */
+    @Test
+    public void canGetPreviouslySetClass() {
         parsingManager.setOverridingParser(ExampleSMSParser.class);
-        parsingManager.setOverridingParser(AnotherExampleSMSParser.class);
-        assertEquals(AnotherExampleSMSParser.class, parsingManager.getOverridingParser());
+        assertEquals(ExampleSMSParser.class, parsingManager.getOverridingParser());
     }
 
     /**
@@ -195,20 +252,22 @@ public class SMSParsingManagerTest {
      * Test to assert {@link SMSParsingManager#setOverridingParser(Class)} resets to null.
      */
     @Test
-    public void resetOverridingParser() {
+    public void resetOverridingParserResetsToNull() {
         parsingManager.setOverridingParser(ExampleSMSParser.class);
         parsingManager.resetOverridingParser();
         assertNull(parsingManager.getOverridingParser());
     }
 
     /**
-     * Test asserting the parser actually overrides for outgoing messages.
+     * Test asserting the parser actually overrides for outgoing messages, if the saved class is
+     * accessible.
      */
     @Test
-    public void isOutgoingParsingOverridden() {
+    public void isOutgoingParsingOverriddenIfAccessible() {
         parsingManager.setOverridingParser(ExampleSMSParser.class);
         SMSMessage actualParsedMessage = parsingManager.parseOutgoingMessage(EXAMPLE_MESSAGE);
-        SMSMessage expectedParsedMessage = parsingManager.parseOutgoingMessage(EXAMPLE_MESSAGE);
+        SMSMessage expectedParsedMessage =
+                new ExampleSMSParser().parseOutgoingMessage(EXAMPLE_MESSAGE);
         assertTrue(
                 expectedParsedMessage.getPeer().equals(actualParsedMessage.getPeer()) &&
                         expectedParsedMessage.getData().equals(actualParsedMessage.getData())
@@ -216,14 +275,48 @@ public class SMSParsingManagerTest {
     }
 
     /**
-     * Test asserting the parser actually overrides for incoming messages.
+     * Test asserting the parser actually overrides for incoming messages, if the saved class is
+     * accessible.
      */
     @Test
-    public void isIncomingParsingOverridden() {
+    public void isIncomingParsingOverriddenIfAccessible() {
         parsingManager.setOverridingParser(ExampleSMSParser.class);
-        SMSMessage actualParsedMessage = parsingManager.parseOutgoingMessage(EXAMPLE_MESSAGE);
-        SMSMessage expectedParsedMessage = parsingManager.parseOutgoingMessage(EXAMPLE_MESSAGE);
+        SMSMessage actualParsedMessage = parsingManager.parseIncomingMessage(EXAMPLE_MESSAGE);
+        SMSMessage expectedParsedMessage =
+                new ExampleSMSParser().parseIncomingMessage(EXAMPLE_MESSAGE);
         assertTrue(
+                expectedParsedMessage.getPeer().equals(actualParsedMessage.getPeer()) &&
+                        expectedParsedMessage.getData().equals(actualParsedMessage.getData())
+        );
+    }
+
+    /**
+     * Test asserting the parser is not overridden for outgoing messages, if the saved class is
+     * inaccessible.
+     */
+    @Test
+    public void outgoingParsingIsNotOverriddenIfInaccessible() {
+        parsingManager.setOverridingParser(AnotherExampleSMSParser.class);
+        SMSMessage actualParsedMessage = parsingManager.parseOutgoingMessage(EXAMPLE_MESSAGE);
+        SMSMessage expectedParsedMessage =
+                new ExampleSMSParser().parseOutgoingMessage(EXAMPLE_MESSAGE);
+        assertFalse(
+                expectedParsedMessage.getPeer().equals(actualParsedMessage.getPeer()) &&
+                        expectedParsedMessage.getData().equals(actualParsedMessage.getData())
+        );
+    }
+
+    /**
+     * Test asserting the parser is not overridden for incoming messages, if the saved class is
+     * inaccessible.
+     */
+    @Test
+    public void incomingParsingIsNotOverriddenIfInaccessible() {
+        parsingManager.setOverridingParser(AnotherExampleSMSParser.class);
+        SMSMessage actualParsedMessage = parsingManager.parseIncomingMessage(EXAMPLE_MESSAGE);
+        SMSMessage expectedParsedMessage =
+                new ExampleSMSParser().parseIncomingMessage(EXAMPLE_MESSAGE);
+        assertFalse(
                 expectedParsedMessage.getPeer().equals(actualParsedMessage.getPeer()) &&
                         expectedParsedMessage.getData().equals(actualParsedMessage.getData())
         );
