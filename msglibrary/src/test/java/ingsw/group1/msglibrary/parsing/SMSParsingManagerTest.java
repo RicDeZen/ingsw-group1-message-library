@@ -20,6 +20,7 @@ import ingsw.group1.msglibrary.SMSMessage;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Class containing tests for {@link SMSParsingManager}.
@@ -155,7 +156,7 @@ public class SMSParsingManagerTest {
     }
 
     /**
-     * // FIXME: 19/01/2020 The preference is read as null from outside on separated tests.
+     * // FIXME: 19/01/2020 An attempt to read the value in between write and read returns null.
      * Test to assert the class can write the parser class in
      * {@link android.content.SharedPreferences} and subsequently retrieve it, when starting from
      * a {@code null} value.
@@ -184,13 +185,21 @@ public class SMSParsingManagerTest {
      * for the saved parser.
      */
     @Test
-    public void setParsingManagerReturnsOldValue() {
+    public void setOverridingParserReturnsOldValue() {
         parsingManager.setOverridingParser(ExampleSMSParser.class);
         Class<?> oldValue = parsingManager.setOverridingParser(AnotherExampleSMSParser.class);
         assertEquals(ExampleSMSParser.class, oldValue);
     }
 
-    //TODO reset tests
+    /**
+     * Test to assert {@link SMSParsingManager#setOverridingParser(Class)} resets to null.
+     */
+    @Test
+    public void resetOverridingParser() {
+        parsingManager.setOverridingParser(ExampleSMSParser.class);
+        parsingManager.resetOverridingParser();
+        assertNull(parsingManager.getOverridingParser());
+    }
 
     /**
      * Test asserting the parser actually overrides for outgoing messages.
