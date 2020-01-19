@@ -7,6 +7,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -34,14 +35,15 @@ import static org.junit.Assert.assertNull;
 @RunWith(RobolectricTestRunner.class)
 public class SMSParsingManagerTest {
 
-    private static final String PREF_FILENAME = SMSParsingManager.PREF_FILENAME;
-    private static final String PREF_KEY_PREFIX = SMSParsingManager.PREF_KEY_PREFIX;
     private static final String EXAMPLE_NAME = "I'm a name";
     private static final String ANOTHER_NAME = "Another name";
     private static final SMSMessage EXAMPLE_MESSAGE = new SMSMessage(
             new RandomSMSPeerGenerator().generateValidPeer(),
             "I'm an example message"
     );
+
+    private static String PREF_FILENAME;
+    private static String PREF_KEY_PREFIX;
 
     private SMSParsingManager parsingManager;
     private String prefKey;
@@ -78,6 +80,27 @@ public class SMSParsingManagerTest {
         @Override
         public SMSMessage parseIncomingMessage(SMSMessage message) {
             return new SMSMessage(message.getPeer(), message.getData().substring(1));
+        }
+    }
+
+    /**
+     * Method to initialize the constants used by {@link SMSParsingManager} in order to inject
+     * data in the correct preference files.
+     */
+    @BeforeClass
+    public static void setPrefFilenameAndKey() {
+        try {
+            Field prefFileField = SMSParsingManager.class.getDeclaredField("PREF_FILENAME");
+            prefFileField.setAccessible(true);
+            PREF_FILENAME = (String) prefFileField.get(null);
+
+            Field prefKeyField = SMSParsingManager.class.getDeclaredField("PREF_KEY_PREFIX");
+            prefKeyField.setAccessible(true);
+            PREF_KEY_PREFIX = (String) prefKeyField.get(null);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new IllegalStateException(
+                    "The constants could not be set. Tests cannot be run\n" + e.getMessage()
+            );
         }
     }
 

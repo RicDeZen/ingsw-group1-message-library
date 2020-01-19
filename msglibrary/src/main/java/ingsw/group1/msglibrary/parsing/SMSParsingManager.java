@@ -33,9 +33,9 @@ import ingsw.group1.msglibrary.SMSMessage;
 public class SMSParsingManager implements SMSParser {
 
     //Base name for Preference file name.
-    static final String PREF_FILENAME = "ingsw.group1.msglibrary.parsing.SMSParsingManager";
+    private static final String PREF_FILENAME = "ingsw.group1.msglibrary.parsing.SMSParsingManager";
     //Base name for Preference key. Should be followed by instance name.
-    static final String PREF_KEY_PREFIX = "defaultParser-";
+    private static final String PREF_KEY_PREFIX = "defaultParser-";
     //Map containing the active instances of this class.
     private static Map<String, SMSParsingManager> activeInstances = new HashMap<>();
 
