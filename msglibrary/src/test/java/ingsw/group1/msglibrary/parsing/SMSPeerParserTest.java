@@ -30,12 +30,12 @@ public class SMSPeerParserTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void dataToPeerThrowsForInvalidAddress(){
+    public void dataToPeerThrowsForInvalidAddress() {
         parser.dataToPeer(new RandomSMSPeerGenerator().generateInvalidAddress());
     }
 
     @Test
-    public void dataToPeerAcceptsValidAddress(){
+    public void dataToPeerAcceptsValidAddress() {
         String peerData = new RandomSMSPeerGenerator().generateValidAddress();
         SMSPeer expected = new SMSPeer(peerData);
         assertEquals(expected, parser.dataToPeer(peerData));
