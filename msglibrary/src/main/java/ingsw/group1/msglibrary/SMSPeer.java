@@ -86,7 +86,8 @@ public class SMSPeer implements Peer<String, SMSPeer> {
      */
     @Override
     public boolean isValid() {
-        return getAddressValidity(address) == PhoneNumberValidity.VALID;
+        return getAddressValidity(address) == PhoneNumberValidity.VALID
+                || getAddressValidity(address) == PhoneNumberValidity.EMULATOR;
     }
 
     /**
